@@ -8,6 +8,8 @@ from torch.utils import data
 import yaml
 import pickle
 
+from os.path import basename
+
 REGISTERED_PC_DATASET_CLASSES = {}
 
 
@@ -47,6 +49,7 @@ class SemKITTI_demo(data.Dataset):
         return len(self.im_idx)
 
     def __getitem__(self, index):
+        # print("Index 22 ", self.im_idx[index])
         raw_data = np.fromfile(self.im_idx[index], dtype=np.float32).reshape((-1, 4))
         if self.imageset == 'demo':
             annotated_data = np.expand_dims(np.zeros_like(raw_data[:, 0], dtype=int), axis=1)
@@ -55,9 +58,16 @@ class SemKITTI_demo(data.Dataset):
             annotated_data = annotated_data & 0xFFFF  # delete high 16 digits binary
             annotated_data = np.vectorize(self.learning_map.__getitem__)(annotated_data)
 
+        
+        fileName = basename(self.im_idx[index])
+        fileName = fileName.replace(".bin", "")
+        # print(fileName)
+
         data_tuple = (raw_data[:, :3], annotated_data.astype(np.uint8))
         if self.return_ref:
             data_tuple += (raw_data[:, 3],)
+
+        data_tuple += (fileName,)
         return data_tuple
 
 @register_dataset

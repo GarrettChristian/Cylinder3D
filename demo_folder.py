@@ -49,6 +49,7 @@ def build_dataset(dataset_config,
         max_volume_space=dataset_config['max_volume_space'],
         min_volume_space=dataset_config['min_volume_space'],
         ignore_label=dataset_config["ignore_label"],
+        return_test=True
     )
     demo_dataset_loader = torch.utils.data.DataLoader(dataset=demo_dataset,
                                                      batch_size=1,
@@ -74,7 +75,8 @@ def main(args):
     grid_size = model_config['output_shape']
     num_class = model_config['num_class']
     ignore_label = dataset_config['ignore_label']
-    model_load_path = train_hypers['model_load_path']
+    # model_load_path = train_hypers['model_load_path']
+    model_load_path = "model_save_backup.pt"
 
     SemKITTI_label_name = get_SemKITTI_label_name(dataset_config["label_mapping"])
     unique_label = np.asarray(sorted(list(SemKITTI_label_name.keys())))[1:] - 1
@@ -99,7 +101,7 @@ def main(args):
     hist_list = []
     demo_loss_list = []
     with torch.no_grad():
-        for i_iter_demo, (_, demo_vox_label, demo_grid, demo_pt_labs, demo_pt_fea) in enumerate(
+        for i_iter_demo, (_, demo_vox_label, demo_grid, demo_pt_labs, demo_pt_fea, fileName) in enumerate(
                 demo_dataset_loader):
             demo_pt_fea_ten = [torch.from_numpy(i).type(torch.FloatTensor).to(pytorch_device) for i in
                               demo_pt_fea]
@@ -118,7 +120,8 @@ def main(args):
                                                 unique_label))
                 inv_labels = np.vectorize(inv_learning_map.__getitem__)(predict_labels[count, demo_grid[count][:, 0], demo_grid[count][:, 1], demo_grid[count][:, 2]]) 
                 inv_labels = inv_labels.astype('uint32')
-                outputPath = save_dir + str(i_iter_demo).zfill(6) + '.label'
+                # outputPath = save_dir + str(i_iter_demo).zfill(6) + '.label'
+                outputPath = save_dir + fileName[0] + '.label'
                 inv_labels.tofile(outputPath)
                 print("save " + outputPath)
             demo_loss_list.append(loss.detach().cpu().numpy())
