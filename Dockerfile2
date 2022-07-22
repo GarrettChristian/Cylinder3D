@@ -1,0 +1,110 @@
+FROM nvidia/cuda:10.2-cudnn8-devel-ubuntu18.04
+
+# Just in case we need it
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt update && apt upgrade -y
+RUN apt install -y python3 python3-dev python3-pip
+RUN pip3 install --upgrade pip
+RUN apt install -y git wget unzip
+RUN apt install -y build-essential
+RUN apt install -y ffmpeg libsm6 libxext6
+
+# get newer version of cmake
+RUN wget https://apt.kitware.com/kitware-archive.sh
+RUN chmod +x kitware-archive.sh && ./kitware-archive.sh
+
+RUN apt-get install -y libboost-all-dev cmake
+
+RUN pip3 install torch==1.8.1+cu102 -f https://download.pytorch.org/whl/torch_stable.html
+# RUN pip3 install torch==1.6.0
+# RUN pip3 install torch==1.3.0
+RUN pip3 install pyyaml==5.4.1
+RUN pip3 install cython==0.29.24
+RUN pip3 install nuscenes-devkit==1.1.6
+RUN pip3 install numba==0.53.1
+RUN pip3 install strictyaml==1.4.4
+
+# Torch scatter
+RUN pip3 install --no-index torch-scatter -f https://pytorch-geometric.com/whl/torch-1.6.0+cu102.html
+
+# SpConv
+# RUN cmake --version
+
+# RUN cmake --version
+# need to use SpConv 1 and hotfixes
+# see: https://github.com/traveller59/spconv/issues/58
+# RUN git clone --recursive https://github.com/traveller59/spconv.git /spconv
+# RUN git clone https://github.com/traveller59/spconv.git --recursive
+# RUN wget -O hotfixes.zip https://github.com/traveller59/spconv/files/4658204/hotfixes.zip
+# RUN unzip hotfixes -d /hotfixes
+# WORKDIR /spconv
+# RUN git checkout 8da6f967fb9a054d8870c3515b1b44eca2103634 
+# # needs to be done before we can apply the patches
+# RUN git config --global user.email "test@test.com"
+# RUN git config --global user.name "Test"
+# RUN git am /hotfixes/0001-fix-problem-with-torch-1.4.patch 
+# RUN git am /hotfixes/0001-Allow-to-specifiy-CUDA_ROOT-directory-and-pick-corre.patch
+# # RUN apt install -y libboost-all-dev cmake
+# ENV CUDA_ROOT=/usr/local/cuda
+# RUN pip3 install wheel
+# WORKDIR /spconv/third_party
+# RUN git clone https://github.com/pybind/pybind11.git
+# WORKDIR /spconv
+# RUN python3 setup.py bdist_wheel
+# WORKDIR /spconv/dist
+# RUN pip3 install *.whl
+
+# ENV TORCH_CUDA_ARCH_LIST="6.1" 
+# RUN git clone -b v1.2.1 https://github.com/traveller59/spconv.git --recursive
+# ENV CUDA_ROOT=/usr/local/cuda
+# ENV PATH=/usr/bin/cmake:$PATH
+# RUN pip3 install pccm==0.3.4
+# WORKDIR /spconv
+# RUN python3 setup.py bdist_wheel
+# WORKDIR /spconv/dist
+# RUN pip3 install *.whl
+
+# ENV CUDA_ROOT=/usr/local/cuda
+# RUN git clone https://github.com/traveller59/spconv spconv_8da6f96 --recursive
+# WORKDIR /spconv_8da6f96
+# RUN git checkout 8da6f967fb9a054d8870c3515b1b44eca2103634
+# RUN git submodule update --init --recursive
+# RUN wget -O hotfixes.zip https://github.com/sshaoshuai/PCDet/files/4737235/0001-Allow-to-specifiy-CUDA_ROOT-directory-and-pick-corre.patch.zip
+# RUN unzip hotfixes -d /hotfixes
+# RUN git config --global user.email "test@test.com"
+# RUN git config --global user.name "Test"
+# RUN git am /hotfixes/0001-Allow-to-specifiy-CUDA_ROOT-directory-and-pick-corre.patch
+# # RUN pip3 install wheel
+# WORKDIR /spconv_8da6f96
+# RUN python3 setup.py bdist_wheel
+# WORKDIR /spconv_8da6f96/dist
+# RUN pip3 install *.whl
+
+ENV PATH=/usr/local/cuda/bin${PATH:+:${PATH}}
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+ENV CUDA_HOME=/usr/local/cuda
+ENV CUDA_PATH=/usr/local/cuda
+
+RUN python3 --version
+RUN ls /usr/local/lib/ 
+
+RUN PROBLEM_FILE=/usr/local/lib/python3.6/dist-packages/torch/share/cmake/Caffe2/Caffe2Targets.cmake && \
+    sed -i 's/-Wall;-Wextra;-Wno-unused-parameter;-Wno-missing-field-initializers;-Wno-write-strings;-Wno-unknown-pragmas;-Wno-missing-braces;-fopenmp//g' $PROBLEM_FILE && \
+    sed -i 's/-Wall;-Wextra;-Wno-unused-parameter;-Wno-missing-field-initializers;-Wno-write-strings;-Wno-unknown-pragmas;-Wno-missing-braces//g' $PROBLEM_FILE && \
+    cd /root && \
+    git clone --depth 1 --recursive -b v1.2.1 https://www.github.com/traveller59/spconv.git && \
+    cd ./spconv && \
+    SPCONV_FORCE_BUILD_CUDA=1 python3 setup.py install
+
+
+# RUN pip3 list
+
+## Install Cylinder 3D
+WORKDIR /
+# RUN git clone --recursive --depth 1 https://github.com/xinge008/Cylinder3D
+# WORKDIR /Cylinder3D
+# RUN chmod +x train_nusc.sh
+# RUN mkdir -p /data/dataset/nuScenes
+
+

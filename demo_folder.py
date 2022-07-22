@@ -54,8 +54,8 @@ def build_dataset(dataset_config,
     demo_dataset_loader = torch.utils.data.DataLoader(dataset=demo_dataset,
                                                      batch_size=1,
                                                      collate_fn=collate_fn_BEV,
-                                                     shuffle=False,
-                                                     num_workers=4)
+                                                     shuffle=False)
+                                                    #  num_workers=4)
 
     return demo_dataset_loader
 
