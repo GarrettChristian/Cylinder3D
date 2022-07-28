@@ -1,3 +1,28 @@
+# Cylindrical and Asymmetrical 3D Convolution Networks for LiDAR Segmentation
+
+Fork for Semantic LiDAR Fuzzer
+
+---
+
+## Setup
+- Download: model_save_backup.pt from: https://drive.google.com/file/d/1-2yJvoeZ10TKJZ5svtC5PetZndIe2R3v/view?usp=sharing
+- Save to the root of the repository Cylinder3D/model_save_backup.pt 
+
+
+## Build Docker Image
+
+```
+cd to Cylinder3D directory
+docker build . -t cylinder-3d
+```
+
+
+## Run Docker Image
+- See Sample Run in runCylDocker.sh or in the docker runner of semLidarFuzzer
+
+---
+
+<!-- ORIGINAL -->
 
 # Cylindrical and Asymmetrical 3D Convolution Networks for LiDAR Segmentation
 
